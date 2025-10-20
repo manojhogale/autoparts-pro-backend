@@ -2,11 +2,30 @@
 // routes/vouchers.js
 // =============================================================================
 const express = require('express');
-const router5 = express.Router();
-const { protect: protect5 } = require('../middleware/auth');
+const router = express.Router();
+const { protect } = require('../middleware/auth');
 
-router5.get('/', protect5, (req, res) => {
+/**
+ * @swagger
+ * tags:
+ *   name: Vouchers
+ *   description: Voucher management and accounting entries
+ */
+
+/**
+ * @swagger
+ * /vouchers:
+ *   get:
+ *     summary: Get all vouchers (placeholder)
+ *     tags: [Vouchers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Vouchers endpoint (coming soon)
+ */
+router.get('/', protect, (req, res) => {
   res.json({ success: true, message: 'Vouchers - Coming soon' });
 });
 
-module.exports = router5;
+module.exports = router;

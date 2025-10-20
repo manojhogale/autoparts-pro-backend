@@ -1,3 +1,6 @@
+// =============================================================================
+// routes/sync.js
+// =============================================================================
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
@@ -7,7 +10,81 @@ const Purchase = require('../models/Purchase');
 const Product = require('../models/Product');
 const logger = require('../config/logger');
 
-// Bulk sync from offline device
+/**
+ * @swagger
+ * tags:
+ *   name: Sync
+ *   description: APIs for offline data synchronization between devices and server
+ */
+
+/**
+ * @swagger
+ * /sync/bulk:
+ *   post:
+ *     summary: Bulk sync data (Sales, Purchases, Products) from offline device
+ *     description: This endpoint allows offline devices to send accumulated data (sales, purchases, products) for synchronization with the server.
+ *     tags: [Sync]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               sales:
+ *                 type: array
+ *                 description: List of sales to sync
+ *                 items:
+ *                   type: object
+ *               purchases:
+ *                 type: array
+ *                 description: List of purchases to sync
+ *                 items:
+ *                   type: object
+ *               products:
+ *                 type: array
+ *                 description: List of product stock updates
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       200:
+ *         description: Bulk sync completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sales:
+ *                       type: object
+ *                       properties:
+ *                         synced:
+ *                           type: integer
+ *                         failed:
+ *                           type: integer
+ *                     purchases:
+ *                       type: object
+ *                       properties:
+ *                         synced:
+ *                           type: integer
+ *                         failed:
+ *                           type: integer
+ *                     products:
+ *                       type: object
+ *                       properties:
+ *                         synced:
+ *                           type: integer
+ *                         failed:
+ *                           type: integer
+ */
 router.post('/bulk', protect, async (req, res) => {
   try {
     const { sales = [], purchases = [], products = [] } = req.body;
@@ -68,7 +145,32 @@ router.post('/bulk', protect, async (req, res) => {
   }
 });
 
-// Get sync queue
+/**
+ * @swagger
+ * /sync/queue:
+ *   get:
+ *     summary: Get pending sync queue for current user
+ *     description: Returns all pending items that need to be synchronized for the logged-in user.
+ *     tags: [Sync]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Pending sync queue retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
 router.get('/queue', protect, async (req, res) => {
   try {
     const queue = await SyncQueue.find({

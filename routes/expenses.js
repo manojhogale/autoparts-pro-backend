@@ -2,11 +2,30 @@
 // routes/expenses.js
 // =============================================================================
 const express = require('express');
-const router6 = express.Router();
-const { protect: protect6 } = require('../middleware/auth');
+const router = express.Router();
+const { protect } = require('../middleware/auth');
 
-router6.get('/', protect6, (req, res) => {
+/**
+ * @swagger
+ * tags:
+ *   name: Expenses
+ *   description: Expense management APIs
+ */
+
+/**
+ * @swagger
+ * /expenses:
+ *   get:
+ *     summary: Get all expense records (coming soon)
+ *     tags: [Expenses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Expense placeholder
+ */
+router.get('/', protect, (req, res) => {
   res.json({ success: true, message: 'Expenses - Coming soon' });
 });
 
-module.exports = router6;
+module.exports = router;

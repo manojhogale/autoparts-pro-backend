@@ -4,7 +4,25 @@ const Brand = require('../models/Brand');
 const { protect } = require('../middleware/auth');
 const { checkPermission } = require('../middleware/roleCheck');
 
-// Get all brands
+/**
+ * @swagger
+ * tags:
+ *   name: Brands
+ *   description: Manage product brands
+ */
+
+/**
+ * @swagger
+ * /brands:
+ *   get:
+ *     summary: Get all active brands
+ *     tags: [Brands]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of brands
+ */
 router.get('/', protect, async (req, res) => {
   try {
     const brands = await Brand.find({ isActive: true }).sort('name');
@@ -14,7 +32,26 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-// Create brand
+/**
+ * @swagger
+ * /brands:
+ *   post:
+ *     summary: Create a new brand
+ *     tags: [Brands]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Brand created successfully
+ */
 router.post('/', protect, checkPermission('canAddProduct'), async (req, res) => {
   try {
     const brand = await Brand.create(req.body);

@@ -1,3 +1,8 @@
+// server.js
+// ======================================================================
+// AutoParts Pro - Main Server File
+// ======================================================================
+
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -7,6 +12,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const morgan = require('morgan');
 const cron = require('node-cron');
+const { swaggerUi, swaggerSpec } = require('./config/swagger');
 require('dotenv').config();
 
 // Import configurations
@@ -62,7 +68,7 @@ app.use(helmet());
 const corsOptions = {
   origin: process.env.FRONTEND_URL || '*',
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
@@ -102,9 +108,12 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'AutoParts Pro API is running',
     version: process.env.APP_VERSION,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
+
+// ✅ Swagger API Docs (added here)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
 app.use('/api/auth', authRoutes);

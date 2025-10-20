@@ -1,12 +1,16 @@
-// =============================================================================
 // routes/purchaseReturns.js
-// =============================================================================
 const express = require('express');
-const router2 = express.Router();
-const { protect: protect2 } = require('../middleware/auth');
+const router = express.Router();
+const { protect } = require('../middleware/auth');
 
-router2.get('/', protect2, (req, res) => {
+/**
+ * @swagger
+ * tags:
+ *   name: PurchaseReturns
+ *   description: Manage purchase return operations
+ */
+router.get('/', protect, (req, res) => {
   res.json({ success: true, message: 'Purchase returns - Coming soon' });
 });
 
-module.exports = router2;
+module.exports = router;

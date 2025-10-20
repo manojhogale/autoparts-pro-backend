@@ -2,7 +2,7 @@
 // routes/audit.js
 // =============================================================================
 const express = require('express');
-const router9 = express.Router();
+const router = express.Router();
 const {
   getAuditLogs,
   getAuditLogById,
@@ -10,13 +10,94 @@ const {
   getLogsByEntity,
   cleanupOldLogs,
 } = require('../controllers/auditLogController');
-const { protect: protect9 } = require('../middleware/auth');
-const { authorize: authorize9 } = require('../middleware/roleCheck');
+const { protect } = require('../middleware/auth');
+const { authorize } = require('../middleware/roleCheck');
 
-router9.get('/', protect9, authorize9('admin', 'manager'), getAuditLogs);
-router9.get('/:id', protect9, authorize9('admin'), getAuditLogById);
-router9.get('/user/:userId', protect9, authorize9('admin'), getLogsByUser);
-router9.get('/entity/:entity', protect9, authorize9('admin'), getLogsByEntity);
-router9.delete('/cleanup', protect9, authorize9('admin'), cleanupOldLogs);
+/**
+ * @swagger
+ * tags:
+ *   name: Audit
+ *   description: View system logs and user activity
+ */
 
-module.exports = router9;
+/**
+ * @swagger
+ * /audit:
+ *   get:
+ *     summary: Get all audit logs
+ *     tags: [Audit]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all audit logs
+ */
+router.get('/', protect, authorize('admin', 'manager'), getAuditLogs);
+
+/**
+ * @swagger
+ * /audit/{id}:
+ *   get:
+ *     summary: Get single audit log by ID
+ *     tags: [Audit]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Audit log details
+ */
+router.get('/:id', protect, authorize('admin'), getAuditLogById);
+
+/**
+ * @swagger
+ * /audit/user/{userId}:
+ *   get:
+ *     summary: Get logs for a specific user
+ *     tags: [Audit]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Logs filtered by user
+ */
+router.get('/user/:userId', protect, authorize('admin'), getLogsByUser);
+
+/**
+ * @swagger
+ * /audit/entity/{entity}:
+ *   get:
+ *     summary: Get logs by entity name (e.g., Product, Quotation)
+ *     tags: [Audit]
+ *     parameters:
+ *       - in: path
+ *         name: entity
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Logs filtered by entity
+ */
+router.get('/entity/:entity', protect, authorize('admin'), getLogsByEntity);
+
+/**
+ * @swagger
+ * /audit/cleanup:
+ *   delete:
+ *     summary: Delete old audit logs
+ *     tags: [Audit]
+ *     responses:
+ *       200:
+ *         description: Old logs cleaned successfully
+ */
+router.delete('/cleanup', protect, authorize('admin'), cleanupOldLogs);
+
+module.exports = router;

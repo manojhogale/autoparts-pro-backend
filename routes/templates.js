@@ -2,11 +2,17 @@
 // routes/templates.js
 // =============================================================================
 const express = require('express');
-const router7 = express.Router();
-const { protect: protect7 } = require('../middleware/auth');
+const router = express.Router();
+const { protect } = require('../middleware/auth');
 
-router7.get('/', protect7, (req, res) => {
+/**
+ * @swagger
+ * tags:
+ *   name: Templates
+ *   description: Print and document template APIs
+ */
+router.get('/', protect, (req, res) => {
   res.json({ success: true, message: 'Templates - Coming soon' });
 });
 
-module.exports = router7;
+module.exports = router;

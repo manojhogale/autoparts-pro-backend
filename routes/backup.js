@@ -1,3 +1,6 @@
+// =============================================================================
+// routes/backup.js
+// =============================================================================
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
@@ -6,10 +9,28 @@ const {
   createBackup,
   getBackups,
   restoreBackup,
-  downloadBackup
+  downloadBackup,
 } = require('../services/backupService');
 
-// Create manual backup
+/**
+ * @swagger
+ * tags:
+ *   name: Backup
+ *   description: Database backup, restore, and download APIs
+ */
+
+/**
+ * @swagger
+ * /backup/create:
+ *   post:
+ *     summary: Create a manual database backup
+ *     tags: [Backup]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Backup created successfully
+ */
 router.post('/create', protect, authorize('admin'), async (req, res) => {
   try {
     const backup = await createBackup('manual', req.user._id);
@@ -19,7 +40,18 @@ router.post('/create', protect, authorize('admin'), async (req, res) => {
   }
 });
 
-// Get all backups
+/**
+ * @swagger
+ * /backup/list:
+ *   get:
+ *     summary: Get all backup entries
+ *     tags: [Backup]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of backups
+ */
 router.get('/list', protect, authorize('admin'), async (req, res) => {
   try {
     const backups = await getBackups();
@@ -29,7 +61,22 @@ router.get('/list', protect, authorize('admin'), async (req, res) => {
   }
 });
 
-// Restore backup
+/**
+ * @swagger
+ * /backup/restore/{id}:
+ *   post:
+ *     summary: Restore database from backup
+ *     tags: [Backup]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Backup restored successfully
+ */
 router.post('/restore/:id', protect, authorize('admin'), async (req, res) => {
   try {
     await restoreBackup(req.params.id);
@@ -39,7 +86,22 @@ router.post('/restore/:id', protect, authorize('admin'), async (req, res) => {
   }
 });
 
-// Download backup
+/**
+ * @swagger
+ * /backup/download/{id}:
+ *   get:
+ *     summary: Download a backup file
+ *     tags: [Backup]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Backup file downloaded
+ */
 router.get('/download/:id', protect, authorize('admin'), async (req, res) => {
   try {
     const filePath = await downloadBackup(req.params.id);
