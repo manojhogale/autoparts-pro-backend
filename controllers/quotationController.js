@@ -164,8 +164,32 @@ exports.updateQuotation = asyncHandler(async (req, res, next) => {
 });
 
 // =========================
+// @desc    Delete quotation
+// @route   DELETE /api/quotations/:id
+// @access  Private
+// =========================
+exports.deleteQuotation = asyncHandler(async (req, res, next) => {
+  const quotation = await Quotation.findById(req.params.id);
+
+  if (!quotation) return next(new AppError('Quotation not found', 404));
+
+  await quotation.deleteOne();
+
+  await AuditLog.logAction({
+    userId: req.user?._id,
+    action: 'DELETE',
+    entity: 'Quotation',
+    entityId: quotation._id,
+  });
+
+  logger.info(`Quotation deleted: ${quotation.quotationNo}`);
+
+  res.status(200).json({ success: true, message: 'Quotation deleted successfully' });
+});
+
+// =========================
 // @desc    Generate PDF and upload to Cloudinary
-// @route   GET /api/quotations/:id/pdf
+// @route   POST /api/quotations/:id/pdf
 // @access  Private
 // =========================
 exports.generatePDF = asyncHandler(async (req, res, next) => {
@@ -201,7 +225,7 @@ exports.shareQuotation = asyncHandler(async (req, res, next) => {
   if (channel === 'whatsapp') {
     await sendWhatsAppMessage(
       quotation.customerPhone,
-      `📄 AutoParts Quotation: ${quotation.quotationNo}\nTotal: ₹${quotation.totalAmount}\n${quotation.pdfUrl}`
+      `📄 AutoParts Quotation: ${quotation.quotationNo}\nTotal: ₹${quotation.totalAmount}\n${quotation.pdfUrl || ''}`
     );
   }
 
@@ -216,6 +240,42 @@ exports.shareQuotation = asyncHandler(async (req, res, next) => {
   });
 
   res.status(200).json({ success: true, message: 'Quotation sent successfully' });
+});
+
+// =========================
+// @desc    Convert quotation to sale
+// @route   POST /api/quotations/:id/convert
+// @access  Private
+// =========================
+exports.convertToSale = asyncHandler(async (req, res, next) => {
+  const quotation = await Quotation.findById(req.params.id);
+  if (!quotation) return next(new AppError('Quotation not found', 404));
+
+  // 👉 Optional: integrate with Sale model if exists
+  // const sale = await Sale.create({
+  //   customerName: quotation.customerName,
+  //   items: quotation.items,
+  //   totalAmount: quotation.totalAmount,
+  //   sourceQuotation: quotation._id,
+  //   createdBy: req.user?._id,
+  // });
+
+  quotation.status = 'converted';
+  await quotation.save();
+
+  await AuditLog.logAction({
+    userId: req.user?._id,
+    action: 'CONVERT',
+    entity: 'Quotation',
+    entityId: quotation._id,
+    metadata: { convertedTo: 'Sale' },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: 'Quotation converted to sale successfully',
+    // saleId: sale._id,
+  });
 });
 
 // =========================
