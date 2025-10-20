@@ -146,7 +146,7 @@ app.use(errorHandler);
 if (process.env.BACKUP_ENABLED === 'true') {
   const backupTime = process.env.BACKUP_TIME || '02:00';
   const [hour, minute] = backupTime.split(':');
-  
+
   cron.schedule(`${minute} ${hour} * * *`, async () => {
     logger.info('Running scheduled backup...');
     await scheduleBackup();
@@ -188,7 +188,7 @@ const server = app.listen(PORT, () => {
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
   `);
-  
+
   logger.info(`Server started on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
 
